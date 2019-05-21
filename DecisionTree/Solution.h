@@ -158,7 +158,6 @@ public:
     std::map<double, std::pair<int, double>> getAttributeSplits(int node, int att, std::map<double, std::pair<int, double>>& splitData)
     {
         int nbSamplesNode = tree[node].nbSamplesNode;
-        bool allIdentical = true; // To detect contradictory data
         double bestAttributeValue = 0;
         double bestInfoGain = 0;
         
@@ -176,7 +175,6 @@ public:
             }
             // If all sample have the same level for this attribute, it's useless to look for a split
             if (attributeLevels.size() > 1) {
-                allIdentical = false;
                 std::sort(orderedSamples.begin(), orderedSamples.end());
                 
                 // Initially all samples are on the right
@@ -196,15 +194,12 @@ public:
                     if (indexSample != nbSamplesNode) // No need to consider the case in which all samples have been switched to the left
                     {
                         double informationGain = getNumericalInfoGain(node, indexSample, nbSamplesClassLeft, nbSamplesClassRight);
-                        if (informationGain)
+                        std::pair<int, double> split = std::make_pair(att, attributeValue);
+                        splitData.insert(std::make_pair(informationGain, split));
+                        if (informationGain > bestInfoGain)
                         {
-                            std::pair<int, double> split = std::make_pair(att, attributeValue);
-                            splitData.insert(std::make_pair(informationGain, split));
-                            if (informationGain > bestInfoGain)
-                            {
-                                bestInfoGain = informationGain;
-                                bestAttributeValue = attributeValue;
-                            }
+                            bestInfoGain = informationGain;
+                            bestAttributeValue = attributeValue;
                         }
                     }
                 }
@@ -238,22 +233,12 @@ public:
                 if (nbSamplesLevel[level] > 0 && nbSamplesLevel[level] < nbSamplesNode)
                 {
                     // Evaluate entropy of the two resulting sample sets
-                    allIdentical = false;
                     double informationGain = getCategoricalInfoGain(node, level, nbSamplesLevel, nbSamplesClass, nbSamplesLevelClass);
-                    if (informationGain)
-                    {
-                        std::pair<int, double> split = std::make_pair(att, level);
-                        splitData.insert(std::make_pair(informationGain, split));
-                    }
+              
+                    std::pair<int, double> split = std::make_pair(att, level);
+                    splitData.insert(std::make_pair(informationGain, split));
                 }
             }
-        }
-        /* SPECIAL CASE TO HANDLE POSSIBLE CONTADICTIONS IN THE DATA */
-        // (Situations where the same samples have different classes -- In this case no improving split can be found)
-        if (allIdentical)
-        {
-            splitData.clear();
-            return splitData;
         }
         return splitData;
     }

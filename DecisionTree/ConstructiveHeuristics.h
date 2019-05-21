@@ -30,6 +30,8 @@ private:
     
     Solution pruneTree(int node, int level, Solution solution);
     
+    void recursiveConstruction(int node, int level, Solution& solution);
+    
 public:
     // Run the algorithm
     void run();

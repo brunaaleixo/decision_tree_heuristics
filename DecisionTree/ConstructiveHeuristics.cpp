@@ -60,9 +60,7 @@ void ConstructiveHeuristics::greedy(int node, int level, Solution& curSolution)
 //    std::cout << "node: " << node << ", misclassified:" << curSolution.misclassifiedSamples() << std::endl;
     /* BASE CASES -- MAXIMUM LEVEL HAS BEEN ATTAINED OR ALL SAMPLES BELONG TO THE SAME CLASS */
     if (level >= params->maxDepth || curSolution.tree[node].maxSameClass == curSolution.tree[node].nbSamplesNode)
-    {
         return;
-    }
     
     std::map<double, std::pair<int, double>> splitData;
     splitData = curSolution.getSplitData(node);
